@@ -35,7 +35,7 @@ Flask-SocketIO-App is a web application built using the Flask framework and Flas
 
 1. Install Python 3.9 or higher.
 2. Create and activate a virtual environment.
-3. Install dependencies from the `requirements.txt` file using `pip install -r requirements.txt`.
+3. Install dependencies from the `req.txt` file using `pip install -r req.txt`.
 4. Run the application with `python app.py`.
 5. Access the application in your browser at `http://localhost:5000`.
 
