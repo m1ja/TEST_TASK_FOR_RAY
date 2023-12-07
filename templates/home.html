@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+ body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+        }
+
+        div {
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('fibonacci_result', function (data) {
+            console.log('Received Fibonacci result:', data.result);
+            document.getElementById('fibonacciResult').innerText = 'Result: ' + data.result;
+        });
+
+        socket.on('rateBitcoin', function (data) {
+            console.log('Received Fibonacci result:', data.result);
+            document.getElementById('rate_bitcoin').innerText = 'Result: ' + data.result;
+        });
+
+        socket.on('apiNewsTitles', function (data) {
+            var apiNewsList = document.getElementById('api_news_title');
+            apiNewsList.innerHTML = '';  // Clear existing list items
+            console.log('прошел');
+            data.result.forEach(function(title) {
+                var listItem = document.createElement('li');
+                listItem.innerText = title;
+                apiNewsList.appendChild(listItem);
+                console.log('прошел');
+            });
+        });
+
+        function calculateFibonacci() {
+            var n = document.getElementById('n').value;
+            socket.emit('calculate_fibonacci', {n: parseInt(n)});
+            console.log('button click')
+        }
+
+        function api_weather_code() {
+            socket.emit('api_weather_code');
+            console.log('button click')
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center; margin: auto;">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+        <h2>Add Item</h2>
+        <form method="post" action="{{ url_for('home') }}">
+            {{ add_form.csrf_token }}
+            {{ add_form.content.label }} {{ add_form.content }}
+            {{ add_form.submit }}
+        </form>
+        <h2>Items</h2>
+        {% for item in items %}
+            <p>ID: {{ item.id }} - {{ item.content }} - <a href="{{ url_for('delete_item', item_id_to_delete=item.id) }}">Delete</a></p>
+        {% endfor %}
+        <h2>Delete Item</h2>
+        <form method="post" action="{{ url_for('home') }}">
+            {{ delete_form.csrf_token }}
+            {{ delete_form.item_id.label }} {{ delete_form.item_id }}
+            {{ delete_form.submit }}
+        </form>
+        <br>
+        <p>Not {{ current_user.username }}? <a href="{{ url_for('logout') }}">Logout</a></p>
+        <h2>Calculate Fibonacci</h2>
+        <form id="fibonacciForm">
+            <label for="n">Enter the value of n:</label>
+            <input type="number" id="n" name="n" required>
+            <button type="button" onclick="calculateFibonacci()">Calculate Fibonacci</button>
+        </form>
+        <p id="fibonacciResult"></p>
+        <h2>Курс Биткоина</h2>
+        <p id="rate_bitcoin"></p>
+        <h2>API NEWS</h2>
+        <form id="api_weather_form">
+            <button type="button" onclick="api_weather_code()">Узнать новости</button>
+        </form>
+        <ul id="api_news_title">
+        </ul>
+    </div>
+</body>
+</html>
